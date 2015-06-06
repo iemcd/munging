@@ -1,0 +1,129 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use 5.010;
+use Getopt::Std;
+use Pod::Usage;
+
+local $Getopt::Std::STANDARD_HELP_VERSION = 1;
+my %Opts;
+getopts('hmv', \%Opts);
+$Opts{h} and &HELP_MESSAGE;
+$Opts{m} and pod2usage(VERBOSE=>2);
+$Opts{v} and &VERSION_MESSAGE;
+
+my $infile = pop;
+my $num = pop;
+$num += 0;
+
+open(my $in, $infile) || die "Couldn't read $infile: $!";
+my @data = <$in>;
+my $datum;
+
+foreach $datum (@data)
+{	$datum = join "\t", log((split ' ', $datum)[0]), split ' ', $datum;
+}
+@data = sort by_1st_num @data;
+
+my $min = (split ' ', $data[0])[0];
+my $max = (split ' ', $data[-1])[0];
+my $range = $max - $min;
+my $spacing = $range/$num;
+my $place = $spacing/2 + $min;
+
+my $nout = 0;
+until ($nout >= $num)
+{	my @out = split ' ', nearest($place,@data);
+	shift @out;
+	say join "\t", @out;
+	$place += $spacing;
+	$nout++;
+}
+
+# nearest takes two args: the first is a scalar and the second a list.
+sub nearest
+{	my $test = shift;
+	my $lastline = $_[0];
+	my $last = (split ' ', $lastline)[0];
+	foreach my $line (@_)
+	{	my $next = (split ' ', $line)[0];
+		if ($test > $next)
+		{	my $last = $next;
+			my $lastline = $line;
+		} elsif ($test < $next)
+		{	if (($next-$test) > ($test-$last))
+			{	return $lastline;
+			} else
+			{	return $line;
+			}
+		} elsif ($test == $next)
+		{	return $line;
+		}
+	}
+}
+
+sub by_1st_num
+{	my $a1st = (split ' ',$a)[0];
+	my $b1st = (split ' ',$b)[0];
+	$a1st <=> $b1st;
+}
+
+sub HELP_MESSAGE { pod2usage(VERBOSE=>1) };
+sub VERSION_MESSAGE { say "pickln.pl 0.1\nWritten Summer 2012, by Ian McDougall." };
+
+__END__
+
+=head1 NAME
+
+pickln.pl - selects n logarithmically spaced lines from an input file
+
+=head1 SYNOPSIS
+
+B<pickln.pl> I<-h> I<-m> I<-v> I<number> F<filename>
+
+=head1 DESCRIPTION
+
+B<pickln.pl> selects I<number> logarithmically-spaced lines from I<filename> and prints them to STDOUT. It assumes that the input file is tab- or whitespace-separated, and that the first column is the independent variable (which determines the logarithmic spacing). It does not interpolate, nor does it have a check to stop it from printing the same line multiple times, so duplicate lines are likely.
+
+=head1 OPTIONS
+
+=over 4
+
+=item I<-h>, I<--help>
+
+Show this help message.
+
+=item I<-m>
+
+Show the manpage (full documentation).
+
+=item I<-v>, I<--version>
+
+Show version information.
+
+=back
+
+=head1 DIAGNOSTICS
+
+The error checking in this is pretty sub-par, basically any malformed invocation will output garbage. If you're lucky though, it will fail with:
+
+=over 4
+
+=item Couldn't read F<filename>!
+
+(F) The given F<filename> was invalid for some reason.
+
+=back
+
+=head1 REQUIRES
+
+Perl 5.010, Getopt::Std, Pod::Usage
+
+=head1 SEE ALSO
+
+perl(1)
+
+=head1 AUTHOR
+
+Ian McDougall, Ian_McDougall@student.uml.edu

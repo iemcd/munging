@@ -1,0 +1,115 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use 5.010; # mostly for say--although I'm not even using say . . .
+use Getopt::Std;
+use Pod::Usage;
+
+local $Getopt::Std::STANDARD_HELP_VERSION = 1;
+my %Opts;
+getopts('n:rshmv', \%Opts);
+my $infile = pop;
+$Opts{h} and &HELP_MESSAGE;
+$Opts{m} and pod2usage(VERBOSE=>2);
+$Opts{v} and &VERSION_MESSAGE;
+$Opts{n} || die "Option \"-n\" is required.";
+open(my $in, $infile) || die "Couldn't read $infile: $!";
+
+my @data = <$in>;
+my $lines = scalar(@data);
+my $space = $lines / $Opts{n};
+my $index = $space/2;
+my $nout = 0;
+
+if ($Opts{r})
+{	use List::Util 'shuffle';
+	@data = shuffle @data;
+}
+
+if ($Opts{s})
+{	@data = sort by_1st_num @data;
+}
+
+until ($nout >= $Opts{n})
+{	print $data[$index];
+	$index = $index + $space;
+	$nout++;
+}
+
+sub by_1st_num
+{	(split ' ',$a)[0] <=> (split ' ',$b)[0];
+}
+
+sub HELP_MESSAGE { pod2usage(VERBOSE=>1) };
+sub VERSION_MESSAGE { say "pickn.pl 0.1\nWritten Summer 2012, by Ian McDougall." };
+
+__END__
+
+=head1 NAME
+
+pickn.pl - selects n lines from an input file "on center"
+
+=head1 SYNOPSIS
+
+B<pickn.pl> B<-n> I<number> B<-r> B<-s> I<-h> I<-m> I<-v> F<filename>
+
+=head1 DESCRIPTION
+
+B<pickn.pl> selects I<number> evenly-spaced lines from I<filename> and prints them to STDOUT. Lines are selected "on center" such that there are an equal number of missed lines at the beginning and the end.
+
+=head1 OPTIONS
+
+=over 4
+
+=item B<-n> I<number>
+
+Number of lines to be selected (required)
+
+=item B<-r>
+
+Randomize data before selecting. Requires List::Util. This option will be ignored if <-s> is also an argument.
+
+=item B<-s>
+
+Sort data by the first element before selecting. This assumes that the first element of each line is a number separated by whitespace. This option causes B<-r> to be ignored.
+
+=item I<-h>, I<--help>
+
+Show this help message.
+
+=item I<-m>
+
+Show the manpage (full documentation).
+
+=item I<-v>, I<--version>
+
+Show version information.
+
+=back
+
+=head1 DIAGNOSTICS
+
+=over 4
+
+=item Couldn't read F<filename>!
+
+(F) The given F<filename> was invalid for some reason.
+
+=item Option -n is required.
+
+(F) The option B<-n> and value I<number> are required inputs.
+
+=back
+
+=head1 REQUIRES
+
+Perl 5.010, Getopt::Std, Pod::Usage
+
+=head1 SEE ALSO
+
+perl(1)
+
+=head1 AUTHOR
+
+Ian McDougall, Ian_McDougall@student.uml.edu

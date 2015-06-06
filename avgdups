@@ -1,0 +1,100 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use 5.010;
+use Getopt::Std;
+use Pod::Usage;
+
+local $Getopt::Std::STANDARD_HELP_VERSION = 1;
+my %Opts;
+getopts('hmv', \%Opts);
+$Opts{h} and &HELP_MESSAGE;
+$Opts{m} and pod2usage(VERBOSE=>2);
+$Opts{v} and &VERSION_MESSAGE;
+
+my @indata = <>;
+my @sortdata = sort by_1st_num @indata;
+
+my ($line, @next, @out, @accum, $i, $j, $k);
+push @accum, [split ' ',$sortdata[0]];
+
+for $i (1 .. $#sortdata)
+{	my @line = split ' ',$sortdata[$i];
+	if ($line[0] == $accum[-1][0])
+	{	push @accum, [@line];
+	} else
+	{	@out = vertavg(@accum);
+		say join "\t", @out;
+		@out = ();
+		@accum = ();
+		push @accum, [@line];
+	}
+}
+say join "\t", vertavg(@accum);
+
+sub vertavg
+{	my ($j, $k, $sum, @out);
+	for $j (0 .. $#{$_[0]})
+	{	my $sum = 0;
+		for $k (0 .. $#_)
+		{	$sum += $_[$k][$j];
+		}
+		$out[$j] = $sum / @_;
+	}
+	return @out;
+}
+
+sub by_1st_num
+{	my $a1st = (split ' ',$a)[0];
+	my $b1st = (split ' ',$b)[0];
+	$a1st <=> $b1st;
+}
+
+sub HELP_MESSAGE { pod2usage(VERBOSE=>1) };
+sub VERSION_MESSAGE { say "avgdups.pl 0.1\nWritten Summer 2012, by Ian McDougall." };
+
+__END__
+
+=head1 NAME
+
+avgdups.pl - average dependent values for duplicate measurements in input
+
+=head1 SYNOPSIS
+
+B<avgdups.pl> I<-h> I<-m> I<-v> F<filename>
+
+=head1 DESCRIPTION
+
+B<avgdups.pl> averages duplicate measurements in F<filename> and prints the results to STDOUT. It assumes that the input file is tab- or whitespace-separated, and that the first column is the independent variable. If a value of the independent variable appears more than once, the associated data points are combined by averaging.
+If passed multiple input files, it will concatenate them before doing so.
+
+=head1 OPTIONS
+
+=over 4
+
+=item I<-h>, I<--help>
+
+Show this help message.
+
+=item I<-m>
+
+Show the manpage (full documentation).
+
+=item I<-v>, I<--version>
+
+Show version information.
+
+=back
+
+=head1 REQUIRES
+
+Perl 5.010, Getopt::Std, Pod::Usage
+
+=head1 SEE ALSO
+
+perl(1)
+
+=head1 AUTHOR
+
+Ian McDougall, Ian_McDougall@student.uml.edu
