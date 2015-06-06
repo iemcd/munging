@@ -1,6 +1,6 @@
 Data Munging
 ===
-At some point, I worked with some tools that didn't take more than 1000 data points, but I was using large data sets concatenated from different sources. These are some perl scripts I wrote to trim the data sets. They all operate on tab or whitespace separated data files, where the first column is the independent variable.
+At some point, I worked with some tools that [didn't take more than 1000 data points](http://www.catb.org/jargon/html/C/C-Programmers-Disease.html), but I studying the effects of unusually large data sets in these applications. These are some perl scripts I wrote to "trim" the data sets. They all operate on tab or whitespace separated data files, where the first column is the independent variable.
 
 avgdups
 ---
