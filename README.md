@@ -1,6 +1,6 @@
 Data Munging
 ===
-At some point, I worked with some tools that [didn't take more than 1000 data points](http://www.catb.org/jargon/html/C/C-Programmers-Disease.html), but I studying the effects of unusually large data sets in these applications. These are some perl scripts I wrote to "trim" the data sets. They all operate on tab or whitespace separated data files, where the first column is the independent variable.
+At some point, I worked with some tools that [didn't take more than 1000 data points](http://www.catb.org/jargon/html/C/C-Programmers-Disease.html), but I was studying the effects of unusually large data sets in these applications. These are some perl scripts I wrote to "trim" the data sets. They all operate on tab or whitespace separated data files, where the first column is the independent variable.
 
 All the tools have fuller documentation inside them in [POD format](http://perldoc.perl.org/perlpod.html). Running them with the '-m' switch will show this formatted like a manpage.
 
